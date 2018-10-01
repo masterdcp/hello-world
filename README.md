@@ -7,10 +7,12 @@ sudo apt-get install mysql-client mysql-client-5.7 mysql-client-core-5.7 mysql-c
 
 TS3 Server
 
-Tworzenie użytkownika dla serwera TeamSpeak3.
+Tworzenie użytkownika dla serwera TeamSpeak3
+
 sudo useradd -d /opt/teamspeak3-server -m teamspeak3-user
 
-Instalacja serwera TeamSpeak3 dla systemu Linux 64bit.
+Instalacja serwera TeamSpeak3 dla systemu Linux 64bit
+
 sudo wget http://dl.4players.de/ts/releases/3.0.12/teamspeak3-server_linux_amd64-3.0.12.tar.bz2
 sudo tar -jxvf teamspeak3-server_linux_amd64-3.0.12.tar.bz2
 sudo mkdir /opt/teamspeak3-server
@@ -18,7 +20,8 @@ sudo mv teamspeak3-server_linux_amd64/* /opt/teamspeak3-server
 sudo chown teamspeak3-user:teamspeak3-user /opt/teamspeak3-server -R
 sudo rm -fr teamspeak3-server_linux_amd64-3.0.12.tar.bz2 teamspeak3-server_linux_amd64
 
-Instalacja serwera TeamSpeak3 dla systemu Linux 32bit.
+Instalacja serwera TeamSpeak3 dla systemu Linux 32bit
+
 sudo wget http://dl.4players.de/ts/releases/3.0.12/teamspeak3-server_linux_x86-3.0.12.tar.bz2
 sudo tar -jxvf teamspeak3-server_linux_x86-3.0.12.tar.bz2
 sudo mkdir /opt/teamspeak3-server
@@ -26,26 +29,29 @@ sudo mv teamspeak3-server_linux_x86/* /opt/teamspeak3-server
 sudo chown teamspeak3-user:teamspeak3-user /opt/teamspeak3-server -R
 sudo rm -fr teamspeak3-server_linux_x86-3.0.12.tar.bz2 teamspeak3-server_linux-x86
 
-Firewall – konfiguracja iptables.
+Firewall – konfiguracja iptables
+
 -A INPUT -p udp --dport 9987 -j ACCEPT
 -A INPUT -p tcp --dport 10011 -j ACCEPT
 -A INPUT -p tcp --dport 30033 -j ACCEPT
 
  
-Konfiguracja serwera DNS – Bind9 – dla serwera TeamSpeak3.
-Dodajemy do strefy naszej domeny dwa wpisy. Zmieniamy we wpisach nazwę domeny domain.com na swoją własną nazwę domeny.
+Konfiguracja serwera DNS – Bind9 – dla serwera TeamSpeak3
+Dodajemy do strefy naszej domeny dwa wpisy. Zmieniamy we wpisach nazwę domeny domain.com na swoją własną nazwę domeny
+
 _ts3._udp.domain.com. 86400 IN SRV 0 5 9987 domain.com.
 _tsdns._tcp.domain.com. 86400 IN SRV 0 5 41144 domain.com.
 
-Test konfiguracji serwera DNS.
+Test konfiguracji serwera DNS
+
 sudo nslookup -type=SRV _ts3._udp.domain.com
-lub
+ lub
 sudo nslookup -q=SRV _ts3._udp.domain.com
 
  
-Konfiguracja bazy danych MySQL – MariaDB.
-Tworzenie bazy danych teamspeak3 i użytkownika teamspeak3 dla serwera TeamSpeak3.
-Zmieniamy HASŁO do bazy danych na własne hasło.
+Konfiguracja bazy danych MySQL – MariaDB
+Tworzenie bazy danych teamspeak3 i użytkownika teamspeak3 dla serwera TeamSpeak3
+Zmieniamy HASŁO do bazy danych na własne hasło
 
 sudo mysql -u root -p
 
@@ -54,30 +60,35 @@ GRANT ALL PRIVILEGES ON teamspeak3.* TO teamspeak3@localhost IDENTIFIED BY 'HAS�
 flush privileges;
 quit
 
-Linkujemy bibliotekę z serwera redist do katalogu głównego.
+Linkujemy bibliotekę z serwera redist do katalogu głównego
+
 sudo ln -s /opt/teamspeak3-server/redist/libmariadb.so.2 /opt/teamspeak3-server/libmariadb.so.2
 
-Uruchamiamy program ldd aby sprawdzić, czy wszystkie biblioteki są dostępne i nie  posiadają błędów.
+Uruchamiamy program ldd aby sprawdzić, czy wszystkie biblioteki są dostępne i nie  posiadają błędów
+
 sudo ldd /opt/teamspeak3-server/libts3db_mariadb.so
 
-Tworzenie plików konfiguracyjnych serwera TeamSpeak3.
+Tworzenie plików konfiguracyjnych serwera TeamSpeak3
 
 Pliki konfiguracyjne serwera TeamSpeak3 można utworzyć automatycznie skryptem
+
 ./ts3server_minimal_runscript.sh z opcją createinifile=1.
-Ten sposób pozwala na uruchomienie serwera z użyciem bazy banych SQL.
+
+Ten sposób pozwala na uruchomienie serwera z użyciem bazy banych SQL
 
 Ponieważ serwer będzie skonfigurowany z bazą danych MySQL-MariaDB, pliki konfiguracyjne stworzymy recznie:
-Tworzenie czarnej listy.
+Tworzenie czarnej listy
+
 sudo touch /opt/teamspeak3-server/query_ip_blacklist.txt
 
-Tworzenie białej listy.
+Tworzenie białej listy
 
 sudo cat  << EOT > /opt/teamspeak3-server/query_ip_whitelist.txt
 
 127.0.0.1
 EOT
 
-Tworzenie głównego pliku konfiguracyjnego z obsługą bazy danych MySQL-MariaDB.
+Tworzenie głównego pliku konfiguracyjnego z obsługą bazy danych MySQL-MariaDB
 
 sudo cat << EOT > /opt/teamspeak3-server/ts3server.ini
 
@@ -103,7 +114,7 @@ logappend=0
 query_skipbruteforcecheck=0
 EOT
 
-Tworzenie pliku konfiguracyjnego do bazy danych.
+Tworzenie pliku konfiguracyjnego do bazy danych
 
 sudo cat << EOT > /opt/teamspeak3-server/ts3db_mariadb.ini
 
@@ -119,10 +130,11 @@ EOT
  
 
 Zmieniamy ponownie uprawnienia do plików konfiguracyjnych
+
 sudo chown teamspeak3-user:teamspeak3-user /opt/teamspeak3-server -R
 
-Tworzenie skryptu startowego serwera TeamSpeak3.
-Tworzenie skryptu startowego który będzie zawierał lokalizację katalogu domowego, skrypt startowy i nazwę użytkownika serwera TeamSpeak3.
+Tworzenie skryptu startowego serwera TeamSpeak3
+Tworzenie skryptu startowego który będzie zawierał lokalizację katalogu domowego, skrypt startowy i nazwę użytkownika serwera TeamSpeak3
 
 sudo nano /etc/init.d/ts3
 
